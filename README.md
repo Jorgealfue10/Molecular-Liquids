@@ -46,8 +46,6 @@ The input and output files are separated into their own directory, with the same
 ### The program consists on the following files:
 
 · main.f90
+
 · module.f90
-
-Additionally, there is a Makefile.
-
   
