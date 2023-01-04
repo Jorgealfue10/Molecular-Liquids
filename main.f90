@@ -47,7 +47,7 @@ program mainSW
         !Initial and final RDF distances and step for RDF.
         real(kind=8) :: gro,grf,dgr
         !Radial distribution function and list of distances.
-        real(kind=8),allocatable,dimension(:) :: gr,gdist
+        real(kind=8),allocatable,dimension(:) :: gr
 
         !To obtain the proportion of accepted moves in the MC simulation.
         integer :: succes,fail
@@ -94,8 +94,8 @@ program mainSW
 
         !Allocating position matrices and neighbour lists matrix.
         allocate(ri(3,N),rf(3,N),rref(3,N))!,mat(N,N))
-        !Allocating histogram, RDF distances vector and RDF function.
-        allocate(Ni(nr),gdist(nr),gr(nr))
+        !Allocating histogram and RDF function.
+        allocate(Ni(nr),gr(nr))
 
         !Reading the initial atoms positions.
         do i=1,N
@@ -105,11 +105,6 @@ program mainSW
         close(16)
 
         ri=ri/sigma
-
-        !Generating distance vector for RDF.
-        do i=0,nr
-                gdist(i)=gro+dgr*i
-        enddo
 
         !Total number of steps.
         steps=(equil+prod)*N 
@@ -264,7 +259,7 @@ program mainSW
                                 endif
                                 countstruct=countstruct+1
 
-                                call countNi(N,nr,nacc,ri,Ni,gdist,dgr,l)
+                                call countNi(N,nr,nacc,ri,Ni,grf,dgr,l)
 
                                 write(19,*) "-----------------------------------------------------------------"
                                 write(19,*) "Moved atom: ", k
@@ -287,10 +282,10 @@ program mainSW
         close(17)
 
         !Calculation of the RDF.
-        call RDF(N,nr,nacc,pi,reddens,Ni,dgr,gdist,gr)
+        call RDF(N,nr,nacc,pi,reddens,Ni,dgr,gr)
 
-        do i=1,nr
-                write(18,*) gdist(i),gr(i)
+        do i=1,nr+1
+                write(18,*) (i-1)*dgr,gr(i)
         enddo
 
         close(18)

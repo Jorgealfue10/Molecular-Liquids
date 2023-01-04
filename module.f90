@@ -204,9 +204,9 @@ module generator
 
         !Subroutine for updating the histogram containing the information for the RDF. It takes the number
         !of atoms (N), the number of distances (nr), the previous number of times Ni has been updated (nacc),
-        !the previour distance histogram (Ni), the vector containing the distances for RDF (gdist), the distance
-        !step (dgr) and the cell size (l) as input variables. The output is the updated Ni and the updated nacc.
-        subroutine countNi(N,nr,nacc,r,Ni,gdist,dgr,l)
+        !the previour distance histogram (Ni), the input final distance of the RDF (grf), the distance step (dgr) 
+        !and the cell size (l) as input variables. The output is the updated Ni and the updated nacc.
+        subroutine countNi(N,nr,nacc,r,Ni,grf,dgr,l)
                     implicit none
                     !Intrinsic variables.
                     integer :: i,j,m
@@ -214,21 +214,20 @@ module generator
                     !Input and output variables.
                     integer,intent(in) :: N,nr
                     integer,intent(inout) :: Ni(nr),nacc
-                    real(kind=8),intent(in) :: r(3,N),gdist(nr),dgr,l
+                    real(kind=8),intent(in) :: r(3,N),grf,dgr,l
 
                     !In this subroutine all unique distance modulus between atoms are calculated.
-                    !If the calculated distance is inside a range between the distance gdist(m) and
-                    !that distance plus dgr, the corresponding element for that distance of the 
-                    !histogram Ni(m) will increase by one unit. Lastly, nacc will increment also by 1.
-                    do m=1,nr
-                        do i=1,N-1
-                            do j=i+1,N
-                                call MIdist(r(:,i),r(:,j),l,modl,dr)
-                                if ((modl.ge.gdist(m)**2.).and.(modl.lt.(gdist(m)+dgr)**2.)) then
-                                    Ni(m)=Ni(m)+1
-                                endif
-                            enddo
-                        enddo
+                    !If the calculated distance is lower than the maximum input distance for RDF plus dgr,
+                    !the corresponding element (m) for that distance of the histogram Ni(m) will 
+                    !increase by one unit. Lastly, nacc will increment also by 1.
+                    do i=1,N-1
+                      do j=i+1,N
+                          call MIdist(r(:,i),r(:,j),l,modl,dr)
+                          if (modl.lt.(grf+dgr)**2.) then
+                            m=int(sqrt(modl)/dgr)+1
+                            Ni(m)=Ni(m)+1
+                          endif
+                      enddo
                     enddo
 
                     nacc=nacc+1
@@ -248,7 +247,7 @@ module generator
 
                     !The vector distance between the two atoms is calculated. Then, coordinate by coordinate
                     !the values of this vector are check. If the distance coordinate is greater than the half
-                    !of the box length, the atoms are really far apart in the same cell. So, depending on the
+                    !of the box length, the atoms are really far apart in the same cell. Dviepending on the
                     !sign of this distance coordinate the length of the unit cell is substracted or added.
 
                     dr=r1-r2
@@ -267,9 +266,9 @@ module generator
         end subroutine MIdist
 
         !Subroutine for calculating the RDF (gr). It takes the number of atoms (N), the number of distances (nr),
-        !value of pi, the reduced density (reddens), the histogram Ni, the step in distance (dgr) and the vector
-        !containing the distances (gdist) as input variables. The output is the vector containing the RDF values.
-        subroutine RDF(N,nr,nacc,pi,reddens,Ni,dgr,gdist,gr)
+        !value of pi, the reduced density (reddens), the histogram Ni and the step in distance (dgr) as input variables. 
+        !The output is the vector containing the RDF values.
+        subroutine RDF(N,nr,nacc,pi,reddens,Ni,dgr,gr)
                     implicit none
                     !Intrinsic variables.
                     integer :: i
@@ -278,13 +277,12 @@ module generator
                     integer,intent(in) :: N,nr,nacc
                     integer,intent(in) :: Ni(nr)
                     real(kind=8),intent(in) :: pi,reddens,dgr
-                    real(kind=8),intent(in) :: gdist(nr)
                     real(kind=8),intent(out) :: gr(nr)
 
                     !For all the distances in the vector gdist, using the corresponding formula, the 
                     !RDF function is calculated.
-                    do i=1,nr
-                      vol=(gdist(i)+dgr)**3.-gdist(i)**3.
+                    do i=1,nr+1
+                      vol=(dgr*(i-1)+dgr)**3.-(dgr*(i-1))**3.
                       gr(i)=(3.*real(Ni(i)))/(real(nacc)*real(N)*0.5*4.*pi*vol*reddens)
                     enddo
 
