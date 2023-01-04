@@ -111,11 +111,6 @@ module generator
                       call MIdist(ri(:,mat(k,j)),ri(:,k),l,modlji,drji)
                       call MIdist(rf(:,mat(k,j)),rf(:,k),l,modljif,drjif)
 
-                      !do i=1,3
-                      !if (drij(i).ne.drji(i)) print*,"wut",drij(i),drji(i)
-                      !if (drijf(i).ne.drjif(i)) print*,"wut-f",drijf(i),drjif(i)
-                      !enddo
-
                       !Iterating over the neighbour list of atom mat(k,j) to calculate the 3-body potential coefficient
                       !when considering the atom mat(k,j) at the center of the triatomic system.
                       m=1
