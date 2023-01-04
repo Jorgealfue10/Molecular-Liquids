@@ -280,10 +280,7 @@ program mainSW
 
                         endif
                         counter=0
-                endif
-
-                !print*,p
-                
+                endif                
         enddo
 
         call cpu_time(TMC2)
