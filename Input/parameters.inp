@@ -1,0 +1,14 @@
+SW Potential Model Input
+---------------------------------------------------------
+Equilibration-sweeps=   2500
+Production-sweeps=      2000
+Box-Length=             7.6461
+Sigma=                  2.1
+Temperature=            0.1
+Density=                0.4832
+Cutoff-dist=            1.80
+Rskin=                  0.4
+Max-Disp=               0.125
+2-body-SW-Params=       7.049556277 0.6022245584
+3-body-SW-Params=       21.0 1.20
+RDF-params=             0.0 3.5 0.025
