@@ -169,29 +169,33 @@ module generator
         !a geometry matrix (r), the distance to consider neighbours (rneigh) and the cell size (l)
         !as input variables. It returns a matrix with N lines, each line corresponds to the atom i
         !and it contains the indexes of the atoms whose distance modulus with i is lower than rneigh.
-        subroutine nlists(N,r,mat,nneigh,rneigh,l)
+        subroutine nlists(N,r,mat,nofn,rneigh,l)
                     implicit none
                     !Intrinsic variables.
-                    integer :: i,j,m
+                    integer :: i,j
                     real(kind=8) :: modl,dr(3)
                     !Input and output variables.
-                    integer,intent(in) :: N,nneigh
-                    integer,intent(out) :: mat(N,nneigh)
+                    integer,intent(in) :: N,nofn
+                    integer :: ni(N)
+                    integer,intent(out) :: mat(N,nofn)
                     real(kind=8),intent(in) :: r(3,N),l,rneigh
 
                     !Setting all neighbour lists as 0.
                     mat=0
 
-                    !The modulus distance between each atom (i) with all of the atoms (j), except itself,
-                    !is calculated. If the distance is lower than rneigh, it is considered as a neighbour
-                    !and the atom number is stored in the i line m column of the mat matrix.
-                    do i=1,N
-                      m=1
-                      do j=1,N
+                    !The modulus distance between each unique distance of atoms, is calculated. 
+                    !If the distance is lower than rneigh, it is considered as a neighbour
+                    !and the atom number is stored in the i line nu(i) column of the mat matrix and viceversa.
+
+                    ni=1
+                    do i=1,N-1
+                      do j=i+1,N
                         call MIdist(r(:,i),r(:,j),l,modl,dr)
-                        if ((modl.lt.rneigh**2.).and.(i.ne.j)) then
-                          mat(i,m)=j
-                          m=m+1
+                        if ((modl.lt.rneigh**2.)) then
+                          mat(i,ni(i))=j
+                          mat(j,ni(j))=i
+                          ni(i)=ni(i)+1
+                          ni(j)=ni(j)+1
                         endif
                       enddo
                     enddo

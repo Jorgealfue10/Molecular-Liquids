@@ -12,7 +12,6 @@ program mainSW
 
         !Montecarlo and SW potential parameters and variables.
         !Parameters.
-        !real(kind=8),parameter :: A=7.049556277,B=0.6022245584,lambda=21.0,gamma=1.20
         real(kind=8) :: A,B,lambda,gamma
         !Integer variables.
         integer :: N,steps,counter,countstruct,equil,prod,sweep
@@ -32,7 +31,7 @@ program mainSW
 
         !SW Neighbour list not yet implemented.
         !Approx. number of neighbours.
-        integer :: nneigh
+        integer :: nofn
         !Matrix.
         integer,allocatable :: mat(:,:)
         !Max distances.
@@ -119,12 +118,12 @@ program mainSW
         rneigh=rskin+rc
         !Defining an approximate number of neighbours, based on the density and the volume
         !formed by the neighbour distance.
-        nneigh=int(reddens*(4./3.)*pi*rneigh**3.+10.)
+        nofn=int(reddens*(4./3.)*pi*rneigh**3.+20.)
         !Allocating the Neighbour lists matrix.
-        allocate(mat(N,nneigh))
+        allocate(mat(N,nofn))
         mat=0
         !Generating Neighbour lists.
-        call nlists(N,ri,mat,nneigh,rneigh,l)
+        call nlists(N,ri,mat,nofn,rneigh,l)
         !Storing reference geometry.
         rref=ri
 
@@ -244,7 +243,7 @@ program mainSW
                 !modlref=distMI(rref(:,k),ri(:,k),l)
                 call MIdist(rref(:,k),ri(:,k),l,modlref,drref)
                 if (modlref.gt.((rskin/2.)**2.)) then
-                        call nlists(N,ri,mat,nneigh,rneigh,l)
+                        call nlists(N,ri,mat,nofn,rneigh,l)
                         rref(:,k)=ri(:,k)
                 endif
                         
@@ -280,7 +279,7 @@ program mainSW
 
                         endif
                         counter=0
-                endif                
+                endif  
         enddo
 
         call cpu_time(TMC2)
