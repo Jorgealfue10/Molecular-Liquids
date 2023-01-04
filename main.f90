@@ -287,9 +287,6 @@ program mainSW
 
         close(17)
 
-        !The RDF histogram is divided by the number of times it has been updated.
-        !Ni=Ni/nacc
-
         !Calculation of the RDF.
         call RDF(N,nr,nacc,pi,reddens,Ni,dgr,gdist,gr)
 
