@@ -3,6 +3,41 @@ module generator
 
         contains
 
+        !Subroutine that determines which atom is randomly moved and gives the new coordinates 
+        !taking into account the PBC conditions.
+        subroutine randommove(N,k,drmax,rf,l)
+                    implicit none
+                    integer :: i
+                    real(kind=8) :: at,wpos(3)
+                    integer,intent(in) :: N
+                    integer,intent(out) :: k
+                    real(kind=8),intent(in) :: drmax,l
+                    real(kind=8),intent(inout) :: rf(3,N)
+
+                    !Randomly determining the atom that is going to be displaced.
+                    call random_number(at)
+                    k=nint(at*N)
+                    do while (k.eq.0)                 !Repeating the process until k is not 0.
+                      call random_number(at)
+                      k=nint(at*N)
+                    enddo
+
+                    !Calling random number to the random displacement.
+                    call random_number(wpos)
+                    !Modifying the position of the k atom.
+                    rf(:,k)=rf(:,k)+2.*drmax*(wpos(:)-0.5)
+
+                    !Checking that the displaced atom is kept inside the unit cell boundaries.
+                    do i=1,3
+                      if (rf(i,k).le.0.) then
+                        rf(i,k)=rf(i,k)+l
+                      elseif (rf(i,k).gt.l) then
+                        rf(i,k)=rf(i,k)-l
+                      endif
+                    enddo
+
+        end subroutine randommove
+
         !Subroutine for calculating the SW potential of a single trial move of the MC simulation.
         !This subroutine takes the number of atoms, the randomly selected atom k, the initial geometry (ri),
         !the trial geometry (rf), the neighbour lists matrix (mat), the cell size (l) and the parameters for 
@@ -11,7 +46,7 @@ module generator
         subroutine potcalc(N,k,ri,rf,mat,rc,l,A,B,lambda,gamma,dv)
                     implicit none
                     !Intrinsic variables of the subroutine.
-                    integer :: i,j,m
+                    integer :: j,m
                     !Angle formed by the atoms in the 3-body coefficients.
                     real(kind=8) :: angle
                     !Vector distances and module of the distance between the pair of atoms.

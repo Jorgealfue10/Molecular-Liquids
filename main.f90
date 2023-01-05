@@ -16,14 +16,14 @@ program mainSW
         !Integer variables.
         integer :: N,steps,counter,countstruct,equil,prod,sweep
         !Real type variables.
-        real(kind=8) :: T,w,rc,sigma,pr,at
+        real(kind=8) :: T,w,rc,sigma,pr
         !Potential variables.
         real(kind=8) :: dv
 
         !Module distance variables.
         real(kind=8) :: modlref,drmax
-        !Distance vectors and random changes.
-        real(kind=8),dimension(3) :: drref,wpos,rprint
+        !Distance vectors.
+        real(kind=8),dimension(3) :: drref,rprint
         !Position matrices.
         real(kind=8),allocatable,dimension(:,:) :: ri,rf,rref
         !Atomic symbols.
@@ -189,27 +189,7 @@ program mainSW
                 !Increasing counter.
                 counter=counter+1
 
-                !Randomly determining the atom that is going to be displaced.
-                call random_number(at)
-                k=nint(at*N)
-                do while (k.eq.0)                 !Repeating the process until k is not 0.
-                        call random_number(at)
-                        k=nint(at*N)
-                enddo
-
-                !Calling random number to the random displacement.
-                call random_number(wpos)
-                !Modifying the position of the k atom.
-                rf(:,k)=rf(:,k)+2.*drmax*(wpos(:)-0.5)
-
-                !Checking that the displaced atom is kept inside the unit cell boundaries.
-                do i=1,3
-                        if (rf(i,k).le.0.) then
-                                rf(i,k)=rf(i,k)+l
-                        elseif (rf(i,k).gt.l) then
-                                rf(i,k)=rf(i,k)-l
-                        endif
-                enddo
+                call randommove(N,k,drmax,rf,l)
 
                 !Calculating the SW potential.
                 call potcalc(N,k,ri,rf,mat,rc,l,A,B,lambda,gamma,dv)
