@@ -201,9 +201,10 @@ module generator
         end subroutine potcalc
 
         !Subroutine for calculating the neighbour matrix. It takes the number of atoms (N), 
-        !a geometry matrix (r), the distance to consider neighbours (rneigh) and the cell size (l)
-        !as input variables. It returns a matrix with N lines, each line corresponds to the atom i
-        !and it contains the indexes of the atoms whose distance modulus with i is lower than rneigh.
+        !a geometry matrix (r), the approx number of neighbours (nofn), the distance to consider neighbours (rneigh) 
+        !and the cell size (l) as input variables. It returns a matrix (mat) with N lines, 
+        !each line corresponds to the atom i and they contain the indexes of the atoms whose 
+        !distance modulus with i is lower than rneigh.
         subroutine nlists(N,r,mat,nofn,rneigh,l)
                     implicit none
                     !Intrinsic variables.
