@@ -159,8 +159,8 @@ program mainSW
         write(19,fmt='(A23,1x,F8.6,1x,A44,1x,F6.4)') "Cut-off distance (ru): ", rc, &
                                                      "; Skin distance for Neighbour lists (ru): ", rskin
         write(19,fmt='(A50,1x,F8.6)') "Maximum distance for considering neighbour atoms: ", rneigh
-        write(19,fmt='(A37,1x,I6)') "Approx. number of neighbour atoms: ", nofn
-        write(19,fmt='(A65,1x,F8.6)') "Maximum distance allowed for random displacement of each atom (ru): ", drmax
+        write(19,fmt='(A35,1x,I6)') "Approx. number of neighbour atoms: ", nofn
+        write(19,fmt='(A68,1x,F8.6)') "Maximum distance allowed for random displacement of each atom (ru): ", drmax
         write(19,fmt='(A45,1x,F16.14,1x,A5,1x,F16.14)') "Parameters for 2-body SW potential terms. A: ", A, "; B: ", B
         write(19,fmt='(A50,1x,F12.8,1x,A9,1x,F10.8)') "Parameters for 3-body SW potential terms. lambda: ", lambda, &
                                                       "; gamma: ", gamma
