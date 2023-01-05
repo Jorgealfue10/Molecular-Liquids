@@ -1,4 +1,4 @@
-module generator
+module modSW
         implicit none
 
         contains
@@ -334,4 +334,4 @@ module generator
 
       end function theta
 
-end module generator
+end module modSW

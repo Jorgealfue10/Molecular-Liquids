@@ -1,6 +1,5 @@
 program mainSW
-        !use modSW
-        use generator
+        use modSW
 
         implicit none
         !Program parameters.
