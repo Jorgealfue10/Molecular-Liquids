@@ -43,7 +43,7 @@ module modSW
         !the trial geometry (rf), the neighbour lists matrix (mat), the cell size (l) and the parameters for 
         !the SW potential calculation (A,B,lambda,gamma) as input variables. 
         !It returns the change in the potential after the trial move (dv).
-        subroutine potcalc(N,k,ri,rf,mat,rc,l,A,B,lambda,gamma,dv)
+        subroutine potcalc(N,k,nofn,ri,rf,mat,rc,l,A,B,lambda,gamma,dv)
                     implicit none
                     !Intrinsic variables of the subroutine.
                     integer :: j,m
@@ -58,8 +58,8 @@ module modSW
                     real(kind=8) :: f2,f2f,f3,f3f
                     real(kind=8) :: v2,v2f,v3,v3f
                     !Input and output variables.
-                    integer,intent(in) :: N,k
-                    integer,intent(in) :: mat(N,N)
+                    integer,intent(in) :: N,k,nofn
+                    integer,intent(in) :: mat(nofn,N)
                     real(kind=8),intent(in) :: ri(3,N),rf(3,N)
                     real(kind=8),intent(in) :: A,B,lambda,gamma,rc,l
                     real(kind=8),intent(inout) :: dv
@@ -76,11 +76,11 @@ module modSW
 
                     !Iterating over all the neighbour atoms of atom k.
                     j=1
-                    do while (mat(k,j).ne.0)
+                    do while (mat(j,k).ne.0)
 
                       !Computing the MI distance vector and modulus of both geometries.
-                      call MIdist(ri(:,k),ri(:,mat(k,j)),l,modlij,drij)
-                      call MIdist(rf(:,k),rf(:,mat(k,j)),l,modlijf,drijf)
+                      call MIdist(ri(:,k),ri(:,mat(j,k)),l,modlij,drij)
+                      call MIdist(rf(:,k),rf(:,mat(j,k)),l,modlijf,drijf)
 
                       !If the modulus distance between the atoms is lower than the cutoff,
                       !calculate the f2 2-body potential coefficient.
@@ -103,12 +103,12 @@ module modSW
                       !Iterating over the neighbour list to calculate the 3-body potential coefficient
                       !when considering the atom k at the center of the triatomic system.
                       m=j+1
-                      do while (mat(k,m).ne.0)
+                      do while (mat(m,k).ne.0)
 
                         !Computing the MI distance vector and modulus between k and the 3rd atom
                         !for both geometries.
-                        call MIdist(ri(:,k),ri(:,mat(k,m)),l,modlim,drim)
-                        call MIdist(rf(:,k),rf(:,mat(k,m)),l,modlimf,drimf)
+                        call MIdist(ri(:,k),ri(:,mat(m,k)),l,modlim,drim)
+                        call MIdist(rf(:,k),rf(:,mat(m,k)),l,modlimf,drimf)
 
                         !If the distance modulus between the atoms with atom k is lower than the cut-off
                         !distance, the 3-body potential coefficient is calculated, if not it is 0.
@@ -143,23 +143,23 @@ module modSW
 
                       !Computing the MI distance vector and modulus between k and the second atom
                       !for both geometries.
-                      call MIdist(ri(:,mat(k,j)),ri(:,k),l,modlji,drji)
-                      call MIdist(rf(:,mat(k,j)),rf(:,k),l,modljif,drjif)
+                      call MIdist(ri(:,mat(j,k)),ri(:,k),l,modlji,drji)
+                      call MIdist(rf(:,mat(j,k)),rf(:,k),l,modljif,drjif)
 
-                      !Iterating over the neighbour list of atom mat(k,j) to calculate the 3-body potential coefficient
-                      !when considering the atom mat(k,j) at the center of the triatomic system.
+                      !Iterating over the neighbour list of atom mat(j,k) to calculate the 3-body potential coefficient
+                      !when considering the atom mat(j,k) at the center of the triatomic system.
                       m=1
-                      do while (mat(mat(k,j),m).ne.0)
-                        !Checking that when iterating over the neighbout list of atom mat(k,j), 
+                      do while (mat(m,mat(j,k)).ne.0)
+                        !Checking that when iterating over the neighbout list of atom mat(j,k), 
                         !the atom k is not considered again.
-                        if (mat(mat(k,j),m).ne.k) then 
+                        if (mat(m,mat(j,k)).ne.k) then 
 
-                          !Computing the MI distance vector and modulus between mat(k,j) and the third atom
+                          !Computing the MI distance vector and modulus between mat(j,k) and the third atom
                           !for both geometries.
-                          call MIdist(ri(:,mat(k,j)),ri(:,mat(mat(k,j),m)),l,modljm,drjm)
-                          call MIdist(rf(:,mat(k,j)),rf(:,mat(mat(k,j),m)),l,modljmf,drjmf)
+                          call MIdist(ri(:,mat(j,k)),ri(:,mat(m,mat(j,k))),l,modljm,drjm)
+                          call MIdist(rf(:,mat(j,k)),rf(:,mat(m,mat(j,k))),l,modljmf,drjmf)
 
-                          !If the distance modulus between the atoms with atom mat(k,j) is lower than the cut-off
+                          !If the distance modulus between the atoms with atom mat(j,k) is lower than the cut-off
                           !distance, the 3-body potential coefficient is calculated, if not it is 0.
                           if ((modlji.ge.rc**2.).or.(modljm.ge.rc**2.)) then
                             f3=0.                            
@@ -213,7 +213,7 @@ module modSW
                     !Input and output variables.
                     integer,intent(in) :: N,nofn
                     integer :: ni(N)
-                    integer,intent(out) :: mat(N,nofn)
+                    integer,intent(out) :: mat(nofn,N)
                     real(kind=8),intent(in) :: r(3,N),l,rneigh
 
                     !Setting all neighbour lists as 0.
@@ -228,8 +228,8 @@ module modSW
                       do j=i+1,N
                         call MIdist(r(:,i),r(:,j),l,modl,dr)
                         if ((modl.lt.rneigh**2.)) then
-                          mat(i,ni(i))=j
-                          mat(j,ni(j))=i
+                          mat(ni(i),i)=j
+                          mat(ni(j),j)=i
                           ni(i)=ni(i)+1
                           ni(j)=ni(j)+1
                         endif

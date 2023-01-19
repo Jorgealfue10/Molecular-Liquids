@@ -3,7 +3,7 @@ program mainSW
 
         implicit none
         !Program parameters.
-        real(kind=8),parameter :: kb=8.314462618d-3,pi=3.14159265359
+        real(kind=8),parameter :: pi=3.14159265359
         !General variables.
         integer :: i,k,p
         real(kind=8) :: l !Size of unit cell
@@ -114,7 +114,7 @@ program mainSW
         !formed by the neighbour distance.
         nofn=int(reddens*(4./3.)*pi*rneigh**3.+20.)
         !Allocating the Neighbour lists matrix.
-        allocate(mat(N,nofn))
+        allocate(mat(nofn,N))
         mat=0
         !Generating Neighbour lists.
         call nlists(N,ri,mat,nofn,rneigh,l)
@@ -192,7 +192,7 @@ program mainSW
                 call randommove(N,k,drmax,rf,l)
 
                 !Calculating the SW potential.
-                call potcalc(N,k,ri,rf,mat,rc,l,A,B,lambda,gamma,dv)
+                call potcalc(N,k,nofn,ri,rf,mat,rc,l,A,B,lambda,gamma,dv)
 
                 !For output pursposes.
                 rprint(:)=ri(:,k)
